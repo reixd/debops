@@ -60,3 +60,7 @@ Session.vim
 .netrwhist
 # auto-generated tag files
 tags
+
+
+### Jetbrains IDE ###
+.idea
