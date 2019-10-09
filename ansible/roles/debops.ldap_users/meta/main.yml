@@ -1,0 +1,33 @@
+---
+
+dependencies:
+
+  - role: debops.secret
+
+  - role: debops.ansible_plugins
+
+galaxy_info:
+
+  role_name: 'ldap_users'
+  company: 'DebOps'
+  author: "Rainer 'rei' Schuth"
+  description: 'Manage a small amount of LDAP users'
+  license: 'GPL-3.0-only'
+  min_ansible_version: '2.7.0'
+
+  platforms:
+
+    - name: Ubuntu
+      versions:
+        - xenial
+        - bionic
+
+    - name: Debian
+      versions:
+        - jessie
+        - stretch
+        - buster
+
+  galaxy_tags:
+    - ldap
+    - openldap

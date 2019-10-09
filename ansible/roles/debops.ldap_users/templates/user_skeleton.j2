@@ -1,0 +1,51 @@
+{# Define variables #}
+{% set _template_no_log = (False if (ldap_users__display_passwords|bool) else True) %}
+{% set _template_user_cn = user.cn|d(user.commonName)|d(user.name.split(",")[0]) %}
+{% set _template_user_gn = user.gn|d(user.givenName)|d(user.name.split(",")[0].split(" ")[0]) %}
+{% set _template_user_sn = user.sn|d(user.surname)|d((user.name.split(",")[0].split(" ")[-1]) if (" " in user.name) else user.name) %}
+{% set _template_user_username = user.username|d(_template_user_cn.split(" ")|join(".")|lower) %}
+{% set _template_user_uid = 'uid=' + _template_user_username %}
+{% set _template_user_rdn = user.rdn|d(_template_user_uid) %}
+{% set _template_user_dn =  ([ _template_user_rdn, ldap__people_rdn ] + ldap__base_dn)|join(',')|string %}
+{#{% set _template_user_password = user.password|d(lookup("password", secret + "/ldap/credentials/"#}
+{#                                                         + (_template_user_dn | to_uuid) + ".password"#}
+{#                                                         + " length=" + (ldap_users_default_password_length|string)#}
+{#                                                         + " chars=ascii_letters,digits,hexdigits,punctuation")) %}#}
+{#  #}
+name:        '{{ user.name|mandatory }}'
+state:       '{{ user.state|d('present') }}'
+{% if (user.state|d() and user.state == 'absent') %}
+entry_state: '{{  user.state }}'
+{% endif %}
+dn:          '{{ _template_user_dn }}'
+no_log:       {{ _template_no_log }}
+objectClass:  {{ ldap_users__ldap_default_user_object_classes
+                 + ( ldap_users__ldap_posix_account_object_classes if (user.posix|d(False)) else [] )
+                 + ( ldap_users__ldap_sshd_object_classes if (user.authorized_services.sshd.enabled|d()) else [] )
+                 + ( ldap_users__ldap_nextcloud_object_classes if (user.authorized_services.nextcloud.enabled|d()) else [] )
+              }}
+attributes:
+{# inetOrgPerson attributes #}
+  commonName:   '{{ _template_user_cn }}'
+  givenName:    '{{ _template_user_gn }}'
+  surname:      '{{ _template_user_sn }}'
+{# FIXME #}
+{#  userPassword: '{{ _template_user_password|password_hash('sha512_crypt') }}'#}
+
+{# POSIX attributes #}
+{%  if (user.posix|d()) %}
+  uid:          '{{ _template_user_cn }}'
+  gid:          '{{ _template_user_cn }}'
+{# FIXME #}
+{#  uidNumber:     '{{ ldap__groupid_max|int + 1 }}'#}
+{#  gidNumber:     '{{ ldap__groupid_max|int + 1 }}'#}
+{#  homeDirectory: '{{ ldap__home + "/" + _template_user_username }}'#}
+{#  loginShell:    '{{ ldap__shell }}'#}
+{% endif %}
+
+{# Other attributes #}
+  mail: '{{ _template_user_username + "@" + "FIXME" }}'
+  authorizedService: {{ (user.authorized_services|d({})).keys()|list }}
+{% if (user.authorized_services.sshd.enabled|d()) %}
+  sshPublicKey: {{ user.authorized_services.sshd.ssh_keys|d([]) }}
+{% endif %}

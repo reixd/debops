@@ -1,0 +1,51 @@
+---
+# .. vim: foldmarker=[[[,]]]:foldmethod=marker
+
+# .. _ldap_users__ref_defaults:
+
+# debops.ldap_users default variables
+# =============================
+
+# .. contents:: Sections
+#    :local:
+#
+# .. include:: ../../../../includes/global.rst
+
+
+# Role behaviour [[[
+# ------------------
+
+# .. envvar:: ldap_users__enabled [[[
+#
+# Enable or disable support for system-wide LDAP user configuration. By default LDAP
+# user configuration is disabled.
+#
+ldap_users__enabled: '{{ ansible_local.ldap_users.enabled
+                   if (ansible_local|d() and ansible_local.ldap_users|d() and
+                       (ansible_local.ldap_users.enabled|d())|bool)
+                   else False }}'
+
+                                                                   # ]]]
+                                                                   # ]]]
+
+
+ldap_users__display_passwords: False
+
+ldap_users_default_password_length: 32
+
+ldap_users__ldap_default_user_object_classes: [ 'inetOrgPerson',
+                                                    'authorizedServiceObject',
+                                                    'hostObject' ]
+
+ldap_users__ldap_posix_account_object_classes: [ 'posixAccount',
+                                                          'shadowAccount',
+                                                          'posixGroup',
+                                                          'posixGroupId' ]
+
+ldap_users__ldap_sshd_object_classes: [ 'ldapPublicKey' ]
+
+ldap_users__ldap_nextcloud_object_classes: [ 'nextcloudAccount' ]
+
+ldap_users__ldap__dependent_tasks: []
+
+ldap_users__users: []

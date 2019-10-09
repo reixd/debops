@@ -1,0 +1,42 @@
+---
+
+- name: 'Debug user list'
+  debug:
+    msg: '{{ ldap_users__users }}'
+    verbosity: 1
+
+- name: 'Create user skeleton tasks'
+  set_fact:
+    ldap_users__fact_user_tasks: '{{ ldap_users__fact_user_tasks | d([]) | union( [(lookup("template", "user_skeleton.j2")|from_yaml)] ) }}'
+  loop: '{{ ldap_users__users }}'
+  loop_control:
+    loop_var: user
+    pause: 0.2
+    label: '{{ {"state": user.state|d("present"),
+                "name": user.name,
+                "mail": user.mail|d()} }}'
+  no_log: '{{ (False if (ldap_users__display_passwords|bool) else True) }}'
+  when: user.name|d() and
+        user.state|d('present') not in [ 'init', 'ignore' ]
+
+- name: "Dict2 debug1"
+  debug:
+    msg: '{{ ldap_users__fact_user_tasks }}'
+- name: "Dict2 debug2"
+  debug:
+    msg: '{{ ldap_users__fact_user_tasks[0].name }} & {{ ldap_users__fact_user_tasks[1].name }}'
+
+#add user objectClasses bzw. Services
+-
+#update user information
+
+- name: 'Combine all tasks'
+  set_fact:
+    ldap_users__ldap__dependent_tasks: '{{ ldap_users__ldap__dependent_tasks
+                                          | default([])
+                                          | union( [ldap_users__fact_user_tasks,] ) }}'
+
+- name: 'Debug LDAP tasks'
+  debug:
+    msg: '{{ ldap_users__ldap__dependent_tasks }}'
+    verbosity: 2
