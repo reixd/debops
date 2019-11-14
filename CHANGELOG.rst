@@ -193,6 +193,10 @@ Continuous Integration
   Vagrant environment more useful on Windows hosts, where :file:`/vagrant`
   directory is not mounted due to issues with symlinks.
 
+- The :command:`make test` command will not run the Docker tests anymore, to
+  make the default tests faster. To run the Docker tests with all other tests,
+  you can use the :command:`make test docker` command.
+
 General
 '''''''
 
@@ -413,6 +417,14 @@ Removed
   LDAP is to pass them in plaintext (over TLS) and let the directory server
   store them in a hashed form. See also: :rfc:`3062`.
 
+:ref:`debops.ldap` role
+'''''''''''''''''''''''
+
+- The use of the ``params`` option in the ``ldap_attrs`` and ``ldap_entry``
+  Ansible modules is deprecated due to their insecure nature. As a consequence,
+  the :ref:`debops.ldap` role has been updated to not use this option and the
+  ``ldap__admin_auth_params`` variable has been removed.
+
 :ref:`debops.nginx` role
 ''''''''''''''''''''''''
 
@@ -422,6 +434,13 @@ Removed
 
 Fixed
 ~~~~~
+
+General
+'''''''
+
+- The "Edit on GitHub" links on the role default variable pages in the
+  documentation have been fixed and now point to the correct source files on
+  GitHub.
 
 :ref:`debops.dnsmasq` role
 ''''''''''''''''''''''''''
