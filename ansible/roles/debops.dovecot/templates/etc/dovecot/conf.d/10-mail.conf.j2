@@ -20,8 +20,25 @@ mail_location = {{ dovecot_mail_location }}
 #mail_location = mbox:~/mail:INBOX=/var/mail/%u
 {% endif %}
 
+# See https://wiki.dovecot.org/MailboxSettings
 namespace inbox {
   inbox = yes
+  mailbox Trash {
+    auto = subscribe
+    special_use = \Trash
+  }
+  mailbox Drafts {
+    auto = subscribe
+    special_use = \Drafts
+  }
+  mailbox Sent {
+    auto = subscribe # autocreate and autosubscribe the Sent mailbox
+    special_use = \Sent
+  }
+  mailbox Spam {
+    auto = create # autocreate Spam, but don't autosubscribe
+    special_use = \Junk
+  }
 }
 {% if dovecot_mail_dotlock is defined and not dovecot_mail_dotlock %}
 dotlock_use_excl = no
